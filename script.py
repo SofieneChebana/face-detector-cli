@@ -1,12 +1,15 @@
 import os
 import shutil
 import numpy as np
-import cv2
 from face_recognition import load_yunet, detect_faces
 
-results_dir = "./results/"
+RESULTS_DIR = "./results/"
 model_yn = load_yunet()
-target_embedding = detect_faces(model_yn,"target.jpg")[0] #replace with the image embedding
+
+def start_analysis(source_dir,target_path):
+    target_embedding = detect_faces(model_yn, target_path)[0]
+    analyze_folder(source_dir, target_embedding)
+
 
 def analyze(target_embedding, embedding):
     "We compute the embedding difference with the euclidean metric."
@@ -21,13 +24,13 @@ def analyze(target_embedding, embedding):
 
     return False
 
-def analyze_folder(folder_path):
+def analyze_folder(folder_path, target_embedding):
     print("Analyzing folder : ", folder_path)
     files = []
     for f in os.listdir(folder_path):
         if f.lower().endswith(".jpg"):
             files.append(f)
-    files.sort()  # pour garder un ordre stable
+    files.sort()
 
     for i, file in enumerate(files, start=1):
         image_path = os.path.join(folder_path, file)
@@ -35,7 +38,7 @@ def analyze_folder(folder_path):
 
         for embedding in embeddings:
             if analyze(target_embedding, embedding):
-                shutil.copy(image_path, results_dir)
+                shutil.copy(image_path, RESULTS_DIR)
                 break
 
     subfolders = [
@@ -45,7 +48,5 @@ def analyze_folder(folder_path):
 
     for sub in subfolders:
         sub_path = os.path.join(folder_path, sub)
-        analyze_folder(sub_path)
+        analyze_folder(sub_path, target_embedding)
 
-# Exemple d'utilisation
-analyze_folder("images/")

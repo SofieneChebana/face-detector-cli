@@ -8,7 +8,6 @@ recognizer = cv2.FaceRecognizerSF.create(
     )
 
 def load_yunet():
-    # Charger YuNet
     model = cv2.FaceDetectorYN.create(
         model="models/face_detection_yunet_2023mar.onnx",
         config="",
@@ -30,34 +29,23 @@ def resize(img, max_dim=1600):
 def detect_faces(model, image_path):
     print(image_path)
     embeddings = []
-    # Charger image
     img = cv2.imread(image_path)
     h, w = img.shape[:2]
 
-    # Adapter la taille d’entrée
     model.setInputSize((w, h))
-
-    # Détection
     faces = model.detect(img)
 
     if faces[1] is not None:
         for face in faces[1]:
             x, y, w, h = face[:4].astype(int)
 
-            # Vérification des limites
             if x < 0 or y < 0 or x+w > img.shape[1] or y+h > img.shape[0]:
-                print("❌ Face hors limites → ignorée")
+                print("❌ Face off bound → ignored")
                 continue
 
-            # Vérification taille visage
             if w < 40 or h < 40:
-                print("❌ Visage trop petit → ignoré")
+                print("❌ Face too small → ignored")
                 continue
-            
-            
-            #if w < 112 or h < 112:
-            #    img = cv2.resize(img, None, fx=2, fy=2)
-            #    x, y ,w, h = x*2, y*2, w*2, h*2
 
             aligned = recognizer.alignCrop(img, face)
             if aligned is None:
@@ -70,10 +58,5 @@ def detect_faces(model, image_path):
             embeddings.append(embedding)
             print("Embedding 128D :", embedding.shape)
 
-    #cv2.imshow("YuNet", img)
-    #cv2.waitKey(0)
 
     return embeddings
-
-#model = load_yunet()
-#detect_faces(model,"target.jpg")
