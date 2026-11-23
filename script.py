@@ -6,9 +6,12 @@ from face_recognition import load_yunet, detect_faces
 RESULTS_DIR = "./results/"
 model_yn = load_yunet()
 
+
+
 def start_analysis(source_dir,target_path):
     target_embedding = detect_faces(model_yn, target_path)[0]
     analyze_folder(source_dir, target_embedding)
+
 
 
 def analyze(target_embedding, embedding):
@@ -23,6 +26,8 @@ def analyze(target_embedding, embedding):
         return True
 
     return False
+
+
 
 def analyze_folder(folder_path, target_embedding):
     print("Analyzing folder : ", folder_path)

@@ -7,6 +7,8 @@ recognizer = cv2.FaceRecognizerSF.create(
     0
     )
 
+
+
 def load_yunet():
     model = cv2.FaceDetectorYN.create(
         model="models/face_detection_yunet_2023mar.onnx",
@@ -18,12 +20,15 @@ def load_yunet():
     )
     return model
 
+
+
 def resize(img, max_dim=1600):
     h, w = img.shape[:2]
     if max(h, w) > max_dim:
         scale = max_dim / max(h, w)
         img = cv2.resize(img, (int(w*scale), int(h*scale)))
     return img
+
 
 
 def detect_faces(model, image_path):
@@ -40,16 +45,16 @@ def detect_faces(model, image_path):
             x, y, w, h = face[:4].astype(int)
 
             if x < 0 or y < 0 or x+w > img.shape[1] or y+h > img.shape[0]:
-                print("❌ Face off bound → ignored")
+                print("Face off bound → ignored")
                 continue
 
             if w < 40 or h < 40:
-                print("❌ Face too small → ignored")
+                print("Face too small → ignored")
                 continue
 
             aligned = recognizer.alignCrop(img, face)
             if aligned is None:
-                print("❌ alignCrop a échoué")
+                print("alignCrop failed")
                 continue
 
             cv2.rectangle(img, (x, y), (x+w, y+h), (0,255,0), 2)
